@@ -26,9 +26,17 @@ namespace InsuranceManagementSystem.Controllers
         }
 
 
-        [HttpGet("{id}")]
-        public async Task<IActionResult> GetCustomerById(int id)
+        [HttpGet("GetCustomerById")]
+        public async Task<IActionResult> GetCustomerById()
         {
+            string? userid = User.Claims.FirstOrDefault(c => c.Type == "UserId")?.Value;
+
+            if (userid == null)
+            {
+                return BadRequest("Please log in to update your profile");
+            }
+            int id = Convert.ToInt32(userid);
+
             var customer = await _services.GetCustomerById(id);
             return Ok(customer);
         }
@@ -55,9 +63,16 @@ namespace InsuranceManagementSystem.Controllers
             return Ok(customer);
         }
 
-        [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateCustomer(CustomerDTO customer, int id)
+        [HttpPut("UpdateTheProfile")]
+        public async Task<IActionResult> UpdateCustomer(CustomerDTO customer)
         {
+            string? userid = User.Claims.FirstOrDefault(c => c.Type == "UserId")?.Value;
+
+            if (userid == null) {
+                return BadRequest("Please log in to update your profile");
+            }
+            int id = Convert.ToInt32(userid);
+
             if (customer == null)
             {
                 return BadRequest("Customer cannot be null");

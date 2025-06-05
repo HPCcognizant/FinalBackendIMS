@@ -330,43 +330,6 @@
   },
   {
     "ContainingType": "InsuranceManagementSystem.Controllers.CustomersController",
-    "Method": "GetCustomerById",
-    "RelativePath": "api/Customers/{id}",
-    "HttpMethod": "GET",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [
-      {
-        "Name": "id",
-        "Type": "System.Int32",
-        "IsRequired": true
-      }
-    ],
-    "ReturnTypes": []
-  },
-  {
-    "ContainingType": "InsuranceManagementSystem.Controllers.CustomersController",
-    "Method": "UpdateCustomer",
-    "RelativePath": "api/Customers/{id}",
-    "HttpMethod": "PUT",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [
-      {
-        "Name": "customer",
-        "Type": "InsuranceManagementSystem.DTOs.CustomerDTO",
-        "IsRequired": true
-      },
-      {
-        "Name": "id",
-        "Type": "System.Int32",
-        "IsRequired": true
-      }
-    ],
-    "ReturnTypes": []
-  },
-  {
-    "ContainingType": "InsuranceManagementSystem.Controllers.CustomersController",
     "Method": "DeleteCustomer",
     "RelativePath": "api/Customers/{id}",
     "HttpMethod": "DELETE",
@@ -376,6 +339,32 @@
       {
         "Name": "id",
         "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "InsuranceManagementSystem.Controllers.CustomersController",
+    "Method": "GetCustomerById",
+    "RelativePath": "api/Customers/GetCustomerById",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "InsuranceManagementSystem.Controllers.CustomersController",
+    "Method": "UpdateCustomer",
+    "RelativePath": "api/Customers/UpdateTheProfile",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "customer",
+        "Type": "InsuranceManagementSystem.DTOs.CustomerDTO",
         "IsRequired": true
       }
     ],

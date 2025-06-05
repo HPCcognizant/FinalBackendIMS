@@ -47,7 +47,7 @@ namespace InsuranceManagementSystem.Repository
 
         public async Task<Customer> GetCustomerById(int id)
         {
-            var customer = await _context.Customers.FirstOrDefaultAsync(x => x.Customer_ID == id);
+            var customer = await _context.Customers.FirstOrDefaultAsync(x => x.UserId == id);
             
             if (customer == null)
             {
@@ -56,9 +56,9 @@ namespace InsuranceManagementSystem.Repository
             return customer;
         }
 
-        public async Task UpdateCustomer(CustomerDTO customer, int id)
+        public async Task UpdateCustomer(CustomerDTO customer,int id)
         {
-            var CustInfo = _context.Customers.FirstOrDefault(x => x.Customer_ID == id);
+            var CustInfo = _context.Customers.FirstOrDefault(x => x.UserId == id);
 
             if (CustInfo == null) 
             {
