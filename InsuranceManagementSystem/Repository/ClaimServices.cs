@@ -16,12 +16,13 @@ namespace InsuranceManagementSystem.Repository
             _context = context;
         }
 
-        public async Task<String> AddClaimToDb(ClaimDTO claim)
+        public async Task<(bool IsSuccess, string Message)> AddClaimToDb(ClaimDTO claim)
         {
-            var existingClaim = await _context.Claims.FirstOrDefaultAsync(c=>c.Customer_ID == claim.Customer_ID && c.PolicyID == claim.PolicyID && c.Status != "Rejected");
+            var existingClaim = await _context.Claims.FirstOrDefaultAsync(c => c.Customer_ID == claim.Customer_ID && c.PolicyID == claim.PolicyID && c.Status != "Rejected");
 
-            if (existingClaim != null) {
-                return $"A Claim has already been filed and is currently under'{existingClaim.Status}'.";
+            if (existingClaim != null)
+            {
+                return (false, $"A Claim has already been filed and is currently under '{existingClaim.Status}'.");
             }
 
             // Map ClaimDTO to Claim
@@ -34,7 +35,7 @@ namespace InsuranceManagementSystem.Repository
 
             await _context.Claims.AddAsync(claimEntity);
             await _context.SaveChangesAsync();
-            return "Claim Filed Successfully.";
+            return (true, "Claim Filed Successfully.");
         }
 
         public async Task<Claim> GetClaimByIdFromDb(int id)

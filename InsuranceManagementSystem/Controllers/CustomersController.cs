@@ -33,7 +33,7 @@ namespace InsuranceManagementSystem.Controllers
 
             if (userid == null)
             {
-                return BadRequest("Please log in to update your profile");
+                return BadRequest("Please log in first");
             }
             int id = Convert.ToInt32(userid);
 

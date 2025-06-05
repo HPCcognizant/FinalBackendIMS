@@ -43,12 +43,18 @@ namespace InsuranceManagementSystem.Controllers
         {
             if (ModelState.IsValid)
             {
-                string message = await _claimServices.AddClaimToDb(claimDto);
-                return Ok(message);
+                var result = await _claimServices.AddClaimToDb(claimDto);
+                if (result.IsSuccess)
+                {
+                    return Ok(result.Message);
+                }
+                else
+                {
+                    return BadRequest(new { error = result.Message });
+                }
             }
             return BadRequest(ModelState);
         }
-
 
         [HttpPut("{id}")]
         [Authorize(Roles = "Admin")]

@@ -6,12 +6,11 @@ namespace InsuranceManagementSystem.Interface
 {
     public interface IClaimServices
     {
-        Task<String> AddClaimToDb(ClaimDTO claim);
+        Task<(bool IsSuccess, string Message)> AddClaimToDb(ClaimDTO claim);
         Task<Claim> GetClaimByIdFromDb(int id);
         Task<List<Claim>> GetAllClaimsFromDb();
         Task<Claim> UpdateClaimStatus(int id, string claim);
         Task DeleteClaimFromDb(int id);
-
 
     }
 }
