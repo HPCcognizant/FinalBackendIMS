@@ -69,15 +69,24 @@ namespace InsuranceManagementSystem.Controllers
 
         // DELETE: api/Agents/5
         [HttpDelete("{id}")]
-        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteAgent(int id)
         {
-            var success = await _agentService.DeleteAgentAsync(id);
-            if (!success)
+            try
             {
-                return NotFound();
+                var result = await _agentService.DeleteAgentAsync(id);
+                if (result)
+                {
+                    return Ok("Agent deleted and policies reassigned successfully.");
+                }
+                else
+                {
+                    return NotFound("Agent not found.");
+                }
             }
-            return NoContent();
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
         // GET: api/Agents/{agentId}/assignedPolicies
