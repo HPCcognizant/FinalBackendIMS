@@ -92,9 +92,9 @@ namespace InsuranceManagementSystem.Controllers
         // GET: api/Agents/{agentId}/assignedPolicies
         [HttpGet("{agentId}/assignedPolicies")]
         [Authorize(Roles = "Admin")]
-        public async Task<ActionResult<IEnumerable<Policy>>> GetAssignedPoliciesByAgentId(int agentId)
+        public async Task<ActionResult<IEnumerable<Policy>>> GetAssignedPoliciesByAgentId(string name)
         {
-            var policies = await _agentService.GetAssignedPoliciesByAgentIdAsync(agentId);
+            var policies = await _agentService.GetAssignedPoliciesByAgentIdAsync(name);
             return Ok(policies);
         }
     }

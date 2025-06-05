@@ -11,7 +11,6 @@ namespace InsuranceManagementSystem.Services
         Task<Agent> UpdateAgentAsync(int id, AgentDTO agent);
         Task<bool> DeleteAgentAsync(int id);
         Task<bool> AppointAgentToPolicyAsync(int policyId, int agentId);
-        Task UpdateAgentAsync(int id, object agent_Name);
-        Task<IEnumerable<Policy>> GetAssignedPoliciesByAgentIdAsync(int agentId);
+        Task<IEnumerable<Policy>> GetAssignedPoliciesByAgentIdAsync(string name);
     }
 }
