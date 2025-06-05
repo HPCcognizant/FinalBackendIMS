@@ -6,5 +6,7 @@
         public decimal PremiumAmount { get; set; }
         public string? CoverageDetails { get; set; }
         public DateOnly ValidityPeriod { get; set; }
+        public Boolean IsActive { get; set; }
+        public int AgentID { get; set; }
     }
 }

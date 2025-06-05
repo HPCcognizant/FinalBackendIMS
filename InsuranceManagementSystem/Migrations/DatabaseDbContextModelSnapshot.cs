@@ -22,6 +22,31 @@ namespace InsuranceManagementSystem.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("InsuranceManagementSystem.Models.Admin", b =>
+                {
+                    b.Property<int>("Admin_Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Admin_Id"));
+
+                    b.Property<string>("Admin_Contact")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Admin_Name")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Admin_Id");
+
+                    b.HasIndex("UserId")
+                        .IsUnique();
+
+                    b.ToTable("Admin");
+                });
+
             modelBuilder.Entity("InsuranceManagementSystem.Models.Agent", b =>
                 {
                     b.Property<int>("AgentID")
@@ -34,9 +59,16 @@ namespace InsuranceManagementSystem.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ContactInfo")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
                     b.HasKey("AgentID");
+
+                    b.HasIndex("UserId")
+                        .IsUnique();
 
                     b.ToTable("Agents");
                 });
@@ -85,12 +117,19 @@ namespace InsuranceManagementSystem.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Customer_Name")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<long>("Customer_Phone")
                         .HasColumnType("bigint");
 
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
                     b.HasKey("Customer_ID");
+
+                    b.HasIndex("UserId")
+                        .IsUnique();
 
                     b.ToTable("Customers");
                 });
@@ -115,7 +154,7 @@ namespace InsuranceManagementSystem.Migrations
 
                     b.HasIndex("PolicyID");
 
-                    b.ToTable("CustomerPolicy");
+                    b.ToTable("CustomerPolicies");
                 });
 
             modelBuilder.Entity("InsuranceManagementSystem.Models.Notification", b =>
@@ -156,6 +195,9 @@ namespace InsuranceManagementSystem.Migrations
                     b.Property<string>("CoverageDetails")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
                     b.Property<string>("Policy_Name")
                         .HasColumnType("nvarchar(max)");
 
@@ -172,23 +214,81 @@ namespace InsuranceManagementSystem.Migrations
                     b.ToTable("Policies");
                 });
 
+            modelBuilder.Entity("InsuranceManagementSystem.Models.User", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Email")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Password")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Username")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("role")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Users");
+                });
+
+            modelBuilder.Entity("InsuranceManagementSystem.Models.Admin", b =>
+                {
+                    b.HasOne("InsuranceManagementSystem.Models.User", "User")
+                        .WithOne("Admin")
+                        .HasForeignKey("InsuranceManagementSystem.Models.Admin", "UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("InsuranceManagementSystem.Models.Agent", b =>
+                {
+                    b.HasOne("InsuranceManagementSystem.Models.User", "User")
+                        .WithOne("Agent")
+                        .HasForeignKey("InsuranceManagementSystem.Models.Agent", "UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("InsuranceManagementSystem.Models.Claim", b =>
                 {
                     b.HasOne("InsuranceManagementSystem.Models.Customer", "Customer")
                         .WithMany("Claims")
                         .HasForeignKey("Customer_ID")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("InsuranceManagementSystem.Models.Policy", "Policy")
                         .WithMany("Claims")
                         .HasForeignKey("PolicyID")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Customer");
 
                     b.Navigation("Policy");
+                });
+
+            modelBuilder.Entity("InsuranceManagementSystem.Models.Customer", b =>
+                {
+                    b.HasOne("InsuranceManagementSystem.Models.User", "User")
+                        .WithOne("Customer")
+                        .HasForeignKey("InsuranceManagementSystem.Models.Customer", "UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("InsuranceManagementSystem.Models.CustomerPolicy", b =>
@@ -226,7 +326,7 @@ namespace InsuranceManagementSystem.Migrations
                     b.HasOne("InsuranceManagementSystem.Models.Agent", "Agent")
                         .WithMany("AssignedPolicies")
                         .HasForeignKey("AgentID")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Agent");
@@ -251,6 +351,15 @@ namespace InsuranceManagementSystem.Migrations
                     b.Navigation("Claims");
 
                     b.Navigation("CustomerPolicies");
+                });
+
+            modelBuilder.Entity("InsuranceManagementSystem.Models.User", b =>
+                {
+                    b.Navigation("Admin");
+
+                    b.Navigation("Agent");
+
+                    b.Navigation("Customer");
                 });
 #pragma warning restore 612, 618
         }

@@ -14,7 +14,7 @@ namespace InsuranceManagementSystem.Models
         [ForeignKey("Customer")]
         public int Customer_ID { get; set; }
         public decimal ClaimAmount { get; set; }
-        public string? Status { get; set; }
+        public string? Status { get; set; } = "Filed";
 
         //Navigation Property
         public Policy? Policy { get; set; }
