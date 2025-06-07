@@ -1,5 +1,6 @@
 ﻿using InsuranceManagementSystem.DTOs;
 using InsuranceManagementSystem.Interface;
+using InsuranceManagementSystem.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -19,12 +20,10 @@ namespace InsuranceManagementSystem.Controllers
         }
 
         // Assign Policy to Customer
-        [HttpPost("assign")]
-        public async Task<IActionResult> AssignPolicy(int policyId)
+        [HttpPost]
+        public async Task<IActionResult> AssignPolicy(CustomerPoliciesDTO customerPolicies)
         {
             string? email = User.Claims.FirstOrDefault(c => c.Type == "Email")?.Value;
-            
-
 
             if (email == null) 
             {
@@ -37,7 +36,13 @@ namespace InsuranceManagementSystem.Controllers
             var policiesDTO = new CustomerPoliciesDTO
             {
                 Customer_ID = custID,
-                PolicyID = policyId,
+                PolicyID = customerPolicies.PolicyID,
+                StartDate = customerPolicies.StartDate,
+                EndDate = customerPolicies.EndDate,
+                RenewDate = customerPolicies.RenewDate,
+                PaymentFrequency = customerPolicies.PaymentFrequency,
+                PayableAmount = customerPolicies.PayableAmount,
+
             };
 
             var assignedPolicy = await _customerPolicyService.AssignPolicyToCustomerAsync(policiesDTO);
@@ -62,13 +67,46 @@ namespace InsuranceManagementSystem.Controllers
         }
 
         // Update Assigned Policy
-        [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateAssignedPolicy(int id, [FromBody] CustomerPoliciesDTO policiesDTO)
+        [HttpPut("UpdateTheRenewDate")]
+        public async Task<IActionResult> UpdateTheRenewDate(int customerId, int policyId)
         {
-            var updatedPolicy = await _customerPolicyService.UpdateAssignedPolicyAsync(id, policiesDTO);
-            if (updatedPolicy == null) return NotFound();
-            return Ok(updatedPolicy);
+            try
+            {
+                DateOnly renewDate = await _customerPolicyService.RenewPolicyAsync(customerId, policyId);
+                return Ok(renewDate);
+            }
+            catch (ArgumentException ex)
+            {
+                // Handles cases like "Policy record not found for this customer."
+                return NotFound(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                // Handles unexpected errors
+                return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred: " + ex.Message);
+            }
         }
+
+        [HttpGet("GetPayableAmount")]
+        public async Task<IActionResult> GetPayabaleAmount(int policyId, string paymentFrequency)
+        {
+            try
+            {
+                decimal payableAmount = await _customerPolicyService.CalculatePayableAmountAsync(policyId, paymentFrequency);
+                return Ok(payableAmount);
+            }
+            catch (ArgumentException ex)
+            {
+                // Handles cases like "Policy not found" or "Invalid payment frequency"
+                return NotFound(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                // Handles unexpected errors
+                return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred: " + ex.Message);
+            }
+        }
+
 
         // Delete Assigned Policy
         [HttpDelete("{id}")]

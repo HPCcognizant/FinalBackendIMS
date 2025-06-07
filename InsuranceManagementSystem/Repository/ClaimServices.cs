@@ -25,12 +25,22 @@ namespace InsuranceManagementSystem.Repository
                 return (false, $"A Claim has already been filed and is currently under '{existingClaim.Status}'.");
             }
 
+            var policy = await _context.Policies.FindAsync(claim.PolicyID);
+            if (policy == null ) {
+                throw new KeyNotFoundException($"Policy with id {claim.PolicyID} was not found");
+            }
+
+            if (claim.ClaimAmount > policy.IssuredValue) { 
+                throw new Exception("Claim amount exceeds the insured value of the policy.");
+            }
+
             // Map ClaimDTO to Claim
             var claimEntity = new Claim
             {
                 PolicyID = claim.PolicyID,
                 Customer_ID = claim.Customer_ID,
-                ClaimAmount = claim.ClaimAmount
+                ClaimAmount = claim.ClaimAmount,
+                ClaimReason = claim.ClaimReason,
             };
 
             await _context.Claims.AddAsync(claimEntity);
@@ -54,7 +64,7 @@ namespace InsuranceManagementSystem.Repository
             return await _context.Claims.Include(c => c.Customer).ThenInclude(c => c.CustomerPolicies).ThenInclude(c => c.Policy).ToListAsync();
         }
 
-        public async Task<Claim> UpdateClaimStatus(int id, string claim)
+        public async Task<Claim> UpdateClaimStatus(int id, string claim, string reason)
         {
             var ClaimInfo = _context.Claims.FirstOrDefault(x => x.ClaimID == id);
 
@@ -64,6 +74,7 @@ namespace InsuranceManagementSystem.Repository
             }
 
             ClaimInfo.Status = claim;
+            ClaimInfo.AdminReason = reason;
 
             await _context.SaveChangesAsync();
             return ClaimInfo;
@@ -80,6 +91,14 @@ namespace InsuranceManagementSystem.Repository
             await _context.SaveChangesAsync();
 
         }
-     
-    }
+
+        public async Task<List<Claim>> GetClaimsByCustomerId(int customerId)
+        {
+            return await _context.Claims
+                .Where(c => c.Customer_ID == customerId)
+                .Include(c => c.Policy)
+                .ToListAsync();
+        }
+
+        }
 }

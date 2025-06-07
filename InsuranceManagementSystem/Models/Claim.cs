@@ -15,6 +15,8 @@ namespace InsuranceManagementSystem.Models
         public int Customer_ID { get; set; }
         public decimal ClaimAmount { get; set; }
         public string? Status { get; set; } = "Filed";
+        public string? ClaimReason { get; set; }
+        public string? AdminReason { get; set; }
 
         //Navigation Property
         public Policy? Policy { get; set; }

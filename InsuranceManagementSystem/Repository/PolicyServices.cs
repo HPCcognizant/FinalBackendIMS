@@ -56,18 +56,18 @@ namespace InsuranceManagementSystem.Repository
             return policy;
         }
 
-        public async Task UpdatePolicyValidity()
-        {
-            var today = DateOnly.FromDateTime(DateTime.Now);
+        //public async Task UpdatePolicyValidity()
+        //{
+        //    var today = DateOnly.FromDateTime(DateTime.Now);
 
-            var experiedPolicies = await _context.Policies.Where( p => p.ValidityPeriod < today && p.IsActive).ToListAsync();
+        //    var experiedPolicies = await _context.Policies.Where( p => p.ValidityPeriod < today && p.IsActive).ToListAsync();
 
-            foreach (var policy in  experiedPolicies) 
-            {
-                policy.IsActive = false;
-                _context.SaveChanges();
-            }
-        }
+        //    foreach (var policy in  experiedPolicies) 
+        //    {
+        //        policy.IsActive = false;
+        //        _context.SaveChanges();
+        //    }
+        //}
 
         public async Task<Policy> GetByIdAsync(int policyId)
         {

@@ -3,6 +3,7 @@ using InsuranceManagementSystem.DTOs;
 using InsuranceManagementSystem.Interface;
 using InsuranceManagementSystem.Models;
 using Microsoft.EntityFrameworkCore;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace InsuranceManagementSystem.Repository
 {
@@ -18,17 +19,33 @@ namespace InsuranceManagementSystem.Repository
         // Assign a Policy to a Customer
         public async Task<CustomerPolicy> AssignPolicyToCustomerAsync(CustomerPoliciesDTO policiesDTO)
         {
+            var today = DateOnly.FromDateTime(DateTime.Now);
 
             var customerExists = await _context.Customers.AnyAsync(c => c.Customer_ID == policiesDTO.Customer_ID);
             var policyExists = await _context.Policies.AnyAsync(p => p.PolicyID == policiesDTO.PolicyID);
 
             if (!customerExists || !policyExists)
-                throw new ArgumentException("Invalid CustomerID or PolicyID.");
+                throw new ArgumentException("Invalid CustomerID or PolicyID");
+
+            // Check for active policy
+            var existingPolicy = await _context.CustomerPolicies
+                .FirstOrDefaultAsync(cp =>
+                    cp.Customer_ID == policiesDTO.Customer_ID &&
+                    cp.PolicyID == policiesDTO.PolicyID &&
+                    cp.EndDate > today
+                );
+
+            if (existingPolicy != null)
+                throw new ArgumentException("Customer already has an active policy of this type.");
 
             var customerPolicy = new CustomerPolicy
             {
                 Customer_ID = policiesDTO.Customer_ID,
                 PolicyID = policiesDTO.PolicyID,
+                StartDate = policiesDTO.StartDate,
+                EndDate = policiesDTO.EndDate, // or calculate based on your logic
+                PayableAmount = policiesDTO.PayableAmount,
+                PaymentFrequency = policiesDTO.PaymentFrequency
             };
 
             _context.CustomerPolicies.Add(customerPolicy);
@@ -65,24 +82,50 @@ namespace InsuranceManagementSystem.Repository
                                  .FirstOrDefaultAsync(cp => cp.CustomerPolicy_ID == customerPolicyId);
         }
 
-        // Update Assigned Policy
-        public async Task<CustomerPolicy> UpdateAssignedPolicyAsync(int customerPolicyId, CustomerPoliciesDTO policiesDTO)
+        private DateTime GetNextRenewDate(DateTime fromDate, string frequency)
         {
-            var customerPolicy = await _context.CustomerPolicies.FindAsync(customerPolicyId);
+            return frequency.ToLower() switch
+            {
+                "monthly" => fromDate.AddMonths(1),
+                "quarterly" => fromDate.AddMonths(3),
+                "halfyearly" => fromDate.AddMonths(6),
+                "yearly" => fromDate.AddYears(1),
+                _ => throw new ArgumentException("Invalid payment frequency")
+            };
+        }
+
+        // Fix for CS8604: Ensure 'PaymentFrequency' is not null before passing it to 'GetNextRenewDate'.
+        public async Task<DateOnly> RenewPolicyAsync(int customerId, int policyId)
+        {
+            var customerPolicy = await _context.CustomerPolicies
+                .FirstOrDefaultAsync(cp => cp.Customer_ID == customerId && cp.PolicyID == policyId);
+
             if (customerPolicy == null)
-                throw new ArgumentException("Customer Policy record not found.");
+                throw new ArgumentException("Policy record not found for this customer.");
 
-            var customerExists = await _context.Customers.AnyAsync(c => c.Customer_ID == policiesDTO.Customer_ID);
-            var policyExists = await _context.Policies.AnyAsync(p => p.PolicyID == policiesDTO.PolicyID);
+            if (string.IsNullOrEmpty(customerPolicy.PaymentFrequency))
+                throw new ArgumentException("Payment frequency is not set for this policy.");
 
-            if (!customerExists || !policyExists)
-                throw new ArgumentException("Invalid CustomerID or PolicyID.");
+            var today = DateOnly.FromDateTime(DateTime.Now);
 
-            customerPolicy.Customer_ID = policiesDTO.Customer_ID;
-            customerPolicy.PolicyID = policiesDTO.PolicyID;
+            // Define how many days before renew date renewal is allowed
+            int renewWindowDays = 7; // e.g., allow renewal only within 7 days before renew date
 
+            if (customerPolicy.RenewDate > today.AddDays(renewWindowDays))
+                throw new ArgumentException($"Policy is already renewed. Next renew date: {customerPolicy.RenewDate:yyyy-MM-dd}");
+
+            // If RenewDate is in the past or within the window, allow renewal
+            var baseDate = customerPolicy.RenewDate > today
+                ? customerPolicy.RenewDate
+                : today;
+
+            customerPolicy.RenewDate = DateOnly.FromDateTime(
+                GetNextRenewDate(baseDate.ToDateTime(TimeOnly.MinValue), customerPolicy.PaymentFrequency)
+            );
+
+            _context.CustomerPolicies.Update(customerPolicy);
             await _context.SaveChangesAsync();
-            return customerPolicy;
+            return customerPolicy.RenewDate;
         }
 
         public async Task<List<Policy>> GetAllPoliciesByCustomerID(int id) 
@@ -102,5 +145,71 @@ namespace InsuranceManagementSystem.Repository
 
             return customers;
         }
+
+        public async Task<decimal> CalculatePayableAmountAsync(int policyId, string paymentFrequency)
+        {
+            var policy = await _context.Policies.FirstOrDefaultAsync(p => p.PolicyID == policyId);
+            if (policy == null)
+                throw new ArgumentException("Policy not found");
+
+            // Validate payment frequency against policy validity period
+            if (!IsPaymentFrequencyAllowed(policy.ValidityPeriod, paymentFrequency))
+                throw new ArgumentException($"Payment frequency '{paymentFrequency}' is not allowed for policy validity period '{policy.ValidityPeriod}'.");
+
+            decimal baseAmount = policy.PremiumAmount;
+            decimal payableAmount;
+
+            // If payment frequency matches validity period, charge full premium amount
+            if (!string.IsNullOrEmpty(policy.ValidityPeriod) &&
+                paymentFrequency.Equals(policy.ValidityPeriod, StringComparison.OrdinalIgnoreCase))
+            {
+                payableAmount = baseAmount;
+            }
+            else
+            {
+                switch (paymentFrequency.ToLower())
+                {
+                    case "monthly":
+                        payableAmount = (baseAmount / 12) * 1.05m;  // 5% interest
+                        break;
+                    case "quarterly":
+                        payableAmount = (baseAmount / 4) * 1.03m;   // 3% interest
+                        break;
+                    case "half yearly":
+                        payableAmount = (baseAmount / 2) * 1.02m;   // 2% interest
+                        break;
+                    case "yearly":
+                        payableAmount = baseAmount;                // no interest
+                        break;
+                    default:
+                        throw new ArgumentException("Invalid payment frequency");
+                }
+            }
+
+            return Math.Round(payableAmount, 2);
+        }
+
+
+        // Helper method to validate allowed payment frequencies
+        private bool IsPaymentFrequencyAllowed(string? validityPeriod, string paymentFrequency)
+        {
+            if (string.IsNullOrEmpty(validityPeriod))
+                return true; // or false, depending on your business rule
+
+            switch (validityPeriod.ToLower())
+            {
+                case "halfyearly":
+                    // Only allow monthly and quarterly
+                    return paymentFrequency.Equals("monthly", StringComparison.OrdinalIgnoreCase)
+                        || paymentFrequency.Equals("quarterly", StringComparison.OrdinalIgnoreCase);
+                case "yearly":
+                    // Allow all frequencies
+                    return true;
+                // Add more cases as needed
+                default:
+                    return true;
+            }
+        }
+
     }
 }

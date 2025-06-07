@@ -58,11 +58,11 @@ namespace InsuranceManagementSystem.Controllers
 
         [HttpPut("{id}")]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> UpdateClaimInDb(int id, string status)
+        public async Task<IActionResult> UpdateClaimInDb(int id, string status, string reason)
         {
             if (ModelState.IsValid)
             {
-                var updatedClaim = await _claimServices.UpdateClaimStatus(id, status);
+                var updatedClaim = await _claimServices.UpdateClaimStatus(id, status, reason);
                 if (updatedClaim == null)
                 {
                     return NotFound();
@@ -81,6 +81,19 @@ namespace InsuranceManagementSystem.Controllers
             await _claimServices.DeleteClaimFromDb(id);
             return Ok("Claim Deleted Successfully");
         }
-       
+
+        [HttpGet("GetClaimByCustomerId")]
+        [Authorize(Roles = "Admin, User, Agent")]
+        public async Task<IActionResult> GetClaimByCustomerId(int id)
+        {
+
+            var claims = await _claimServices.GetClaimsByCustomerId(id);
+            if (claims == null || !claims.Any())
+            {
+                return NotFound("No claims found for this customer.");
+            }
+            return Ok(claims);
+
+        }
     }
 }

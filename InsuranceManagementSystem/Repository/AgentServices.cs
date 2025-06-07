@@ -48,20 +48,19 @@ namespace InsuranceManagementSystem.Services
             return agentInfo;
         }
 
-        public async Task<Agent> UpdateAgentAsync(int id, AgentDTO agent)
+        public async Task UpdateAgentAsync(int id, AgentDTO agent)
         {
-            var AgentInfo = _context.Agents.FirstOrDefault(x => x.AgentID == id);
+            var AgentInfo = _context.Agents.FirstOrDefault(x => x.UserId == id);
 
             if (AgentInfo == null)
             {
-                throw new KeyNotFoundException($"Agent with ID {id} was not found.");
+                throw new KeyNotFoundException($"Agent with UserID {id} was not found.");
             }
 
             AgentInfo.Agent_Name = agent.Agent_Name;
             AgentInfo.ContactInfo = agent.ContactInfo;
 
             await _context.SaveChangesAsync();
-            return AgentInfo;
         }
 
 
@@ -126,6 +125,18 @@ namespace InsuranceManagementSystem.Services
             int id = agentInfo.AgentID;
 
             return id;
+        }
+
+        public async Task<bool> IsProfileCompleted(int id)
+        {
+            var user = await _context.Customers.FirstOrDefaultAsync(c => c.UserId == id);
+
+            if (user == null)
+            {
+                return false;
+            }
+            // Check if the user has completed their profile
+            return true;
         }
 
     }

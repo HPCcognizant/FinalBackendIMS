@@ -4,6 +4,7 @@ using InsuranceManagementSystem.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace InsuranceManagementSystem.Migrations
 {
     [DbContext(typeof(DatabaseDbContext))]
-    partial class DatabaseDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250606101254_PolicyAndClaimTablesAreUpdated")]
+    partial class PolicyAndClaimTablesAreUpdated
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -162,9 +165,6 @@ namespace InsuranceManagementSystem.Migrations
 
                     b.Property<int>("PolicyID")
                         .HasColumnType("int");
-
-                    b.Property<DateOnly>("RenewDate")
-                        .HasColumnType("date");
 
                     b.Property<DateOnly>("StartDate")
                         .HasColumnType("date");

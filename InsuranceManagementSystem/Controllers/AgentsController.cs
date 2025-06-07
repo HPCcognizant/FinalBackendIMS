@@ -52,20 +52,32 @@ namespace InsuranceManagementSystem.Controllers
         }
 
         // PUT: api/Agents/5
-        [HttpPut("{id}")]
-        [Authorize(Roles = "Admin,Agent")]
-        public async Task<IActionResult> PutAgent(int id, AgentDTO agent)
+        [HttpPut("UpdateAgentProfile")]
+        [Authorize(Roles = "Agent")]
+        public async Task<IActionResult> PutAgent(AgentDTO agent)
         {
-            try
+            string? userid = User.Claims.FirstOrDefault(c => c.Type == "UserId")?.Value;
+
+            if (userid == null)
             {
-                var updatedAgent = await _agentService.UpdateAgentAsync(id, agent);
-                return Ok(updatedAgent);
+                return BadRequest("Please log in to update your profile");
             }
-            catch (ArgumentException)
+            int id = Convert.ToInt32(userid);
+
+            if (agent == null)
             {
-                return BadRequest("Invalid data");
+                return BadRequest("Agent cannot be null");
             }
+
+            await _agentService.UpdateAgentAsync(id , agent);
+
+            return Ok("Agent Details Updated Successfully");
+
         }
+
+
+
+
 
         // DELETE: api/Agents/5
         [HttpDelete("{id}")]
@@ -97,5 +109,24 @@ namespace InsuranceManagementSystem.Controllers
             var policies = await _agentService.GetAssignedPoliciesByAgentIdAsync(name);
             return Ok(policies);
         }
+
+        [HttpGet("/IsAgentProfileComplete")]
+        [Authorize]
+        public async Task<IActionResult> CheckingTheProfileCompletion()
+        {
+            string? userid = User.Claims.FirstOrDefault(c => c.Type == "UserId")?.Value;
+            int id = Convert.ToInt32(userid);
+
+            bool result = await _agentService.IsProfileCompleted(id);
+            if (result)
+            {
+                return Ok(result);
+            }
+            else
+            {
+                return Ok(result);
+            }
+        }
+
     }
 }

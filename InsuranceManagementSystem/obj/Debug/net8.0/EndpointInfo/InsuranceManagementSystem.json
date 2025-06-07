@@ -133,7 +133,7 @@
           }
         }
       },
-      "put": {
+      "delete": {
         "tags": [
           "Agents"
         ],
@@ -147,6 +147,18 @@
               "format": "int32"
             }
           }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Agents/UpdateAgentProfile": {
+      "put": {
+        "tags": [
+          "Agents"
         ],
         "requestBody": {
           "content": {
@@ -172,27 +184,6 @@
             }
           }
         },
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
-      },
-      "delete": {
-        "tags": [
-          "Agents"
-        ],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            }
-          }
-        ],
         "responses": {
           "200": {
             "description": "OK"
@@ -251,6 +242,18 @@
                 }
               }
             }
+          }
+        }
+      }
+    },
+    "/IsAgentProfileComplete": {
+      "get": {
+        "tags": [
+          "Agents"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
           }
         }
       }
@@ -367,6 +370,13 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "name": "reason",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -397,14 +407,14 @@
         }
       }
     },
-    "/api/CustomerPolicies/assign": {
-      "post": {
+    "/api/Claims/GetClaimByCustomerId": {
+      "get": {
         "tags": [
-          "CustomerPolicies"
+          "Claims"
         ],
         "parameters": [
           {
-            "name": "policyId",
+            "name": "id",
             "in": "query",
             "schema": {
               "type": "integer",
@@ -420,6 +430,40 @@
       }
     },
     "/api/CustomerPolicies": {
+      "post": {
+        "tags": [
+          "CustomerPolicies"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json-patch+json": {
+              "schema": {
+                "$ref": "#/components/schemas/CustomerPoliciesDTO"
+              }
+            },
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CustomerPoliciesDTO"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CustomerPoliciesDTO"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/CustomerPoliciesDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
       "get": {
         "tags": [
           "CustomerPolicies"
@@ -453,51 +497,6 @@
           }
         }
       },
-      "put": {
-        "tags": [
-          "CustomerPolicies"
-        ],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json-patch+json": {
-              "schema": {
-                "$ref": "#/components/schemas/CustomerPoliciesDTO"
-              }
-            },
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CustomerPoliciesDTO"
-              }
-            },
-            "text/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CustomerPoliciesDTO"
-              }
-            },
-            "application/*+json": {
-              "schema": {
-                "$ref": "#/components/schemas/CustomerPoliciesDTO"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
-      },
       "delete": {
         "tags": [
           "CustomerPolicies"
@@ -510,6 +509,65 @@
             "schema": {
               "type": "integer",
               "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/CustomerPolicies/UpdateTheRenewDate": {
+      "put": {
+        "tags": [
+          "CustomerPolicies"
+        ],
+        "parameters": [
+          {
+            "name": "customerId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "policyId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/CustomerPolicies/GetPayableAmount": {
+      "get": {
+        "tags": [
+          "CustomerPolicies"
+        ],
+        "parameters": [
+          {
+            "name": "policyId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "paymentFrequency",
+            "in": "query",
+            "schema": {
+              "type": "string"
             }
           }
         ],
@@ -1225,6 +1283,14 @@
             "type": "string",
             "nullable": true
           },
+          "claimReason": {
+            "type": "string",
+            "nullable": true
+          },
+          "adminReason": {
+            "type": "string",
+            "nullable": true
+          },
           "policy": {
             "$ref": "#/components/schemas/Policy"
           },
@@ -1248,6 +1314,14 @@
           "claimAmount": {
             "type": "number",
             "format": "double"
+          },
+          "claimReason": {
+            "type": "string",
+            "nullable": true
+          },
+          "adminReason": {
+            "type": "string",
+            "nullable": true
           }
         },
         "additionalProperties": false
@@ -1345,6 +1419,26 @@
           "policyID": {
             "type": "integer",
             "format": "int32"
+          },
+          "startDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "endDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "renewDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "paymentFrequency": {
+            "type": "string",
+            "nullable": true
+          },
+          "payableAmount": {
+            "type": "number",
+            "format": "double"
           }
         },
         "additionalProperties": false
@@ -1369,6 +1463,26 @@
           },
           "policy": {
             "$ref": "#/components/schemas/Policy"
+          },
+          "startDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "endDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "renewDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "paymentFrequency": {
+            "type": "string",
+            "nullable": true
+          },
+          "payableAmount": {
+            "type": "number",
+            "format": "double"
           }
         },
         "additionalProperties": false
@@ -1441,6 +1555,11 @@
             "type": "string",
             "nullable": true
           },
+          "issuredValue": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
           "premiumAmount": {
             "type": "number",
             "format": "double"
@@ -1451,7 +1570,7 @@
           },
           "validityPeriod": {
             "type": "string",
-            "format": "date"
+            "nullable": true
           },
           "isActive": {
             "type": "boolean"
@@ -1487,6 +1606,11 @@
             "type": "string",
             "nullable": true
           },
+          "issuredValue": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
           "premiumAmount": {
             "type": "number",
             "format": "double"
@@ -1497,7 +1621,7 @@
           },
           "validityPeriod": {
             "type": "string",
-            "format": "date"
+            "nullable": true
           },
           "isActive": {
             "type": "boolean"

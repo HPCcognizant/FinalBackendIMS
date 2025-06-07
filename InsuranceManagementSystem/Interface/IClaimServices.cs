@@ -9,7 +9,9 @@ namespace InsuranceManagementSystem.Interface
         Task<(bool IsSuccess, string Message)> AddClaimToDb(ClaimDTO claim);
         Task<Claim> GetClaimByIdFromDb(int id);
         Task<List<Claim>> GetAllClaimsFromDb();
-        Task<Claim> UpdateClaimStatus(int id, string claim);
+
+        Task<List<Claim>> GetClaimsByCustomerId(int customerId);
+        Task<Claim> UpdateClaimStatus(int id, string claim, string reason);
         Task DeleteClaimFromDb(int id);
 
     }

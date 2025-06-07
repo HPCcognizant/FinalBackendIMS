@@ -104,27 +104,6 @@
   },
   {
     "ContainingType": "InsuranceManagementSystem.Controllers.AgentsController",
-    "Method": "PutAgent",
-    "RelativePath": "api/Agents/{id}",
-    "HttpMethod": "PUT",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [
-      {
-        "Name": "id",
-        "Type": "System.Int32",
-        "IsRequired": true
-      },
-      {
-        "Name": "agent",
-        "Type": "InsuranceManagementSystem.DTOs.AgentDTO",
-        "IsRequired": true
-      }
-    ],
-    "ReturnTypes": []
-  },
-  {
-    "ContainingType": "InsuranceManagementSystem.Controllers.AgentsController",
     "Method": "DeleteAgent",
     "RelativePath": "api/Agents/{id}",
     "HttpMethod": "DELETE",
@@ -134,6 +113,22 @@
       {
         "Name": "id",
         "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "InsuranceManagementSystem.Controllers.AgentsController",
+    "Method": "PutAgent",
+    "RelativePath": "api/Agents/UpdateAgentProfile",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "agent",
+        "Type": "InsuranceManagementSystem.DTOs.AgentDTO",
         "IsRequired": true
       }
     ],
@@ -203,6 +198,11 @@
         "Name": "status",
         "Type": "System.String",
         "IsRequired": false
+      },
+      {
+        "Name": "reason",
+        "Type": "System.String",
+        "IsRequired": false
       }
     ],
     "ReturnTypes": []
@@ -218,6 +218,38 @@
       {
         "Name": "id",
         "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "InsuranceManagementSystem.Controllers.ClaimsController",
+    "Method": "GetClaimByCustomerId",
+    "RelativePath": "api/Claims/GetClaimByCustomerId",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "InsuranceManagementSystem.Controllers.CustomerPoliciesController",
+    "Method": "AssignPolicy",
+    "RelativePath": "api/CustomerPolicies",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "customerPolicies",
+        "Type": "InsuranceManagementSystem.DTOs.CustomerPoliciesDTO",
         "IsRequired": true
       }
     ],
@@ -251,27 +283,6 @@
   },
   {
     "ContainingType": "InsuranceManagementSystem.Controllers.CustomerPoliciesController",
-    "Method": "UpdateAssignedPolicy",
-    "RelativePath": "api/CustomerPolicies/{id}",
-    "HttpMethod": "PUT",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [
-      {
-        "Name": "id",
-        "Type": "System.Int32",
-        "IsRequired": true
-      },
-      {
-        "Name": "policiesDTO",
-        "Type": "InsuranceManagementSystem.DTOs.CustomerPoliciesDTO",
-        "IsRequired": true
-      }
-    ],
-    "ReturnTypes": []
-  },
-  {
-    "ContainingType": "InsuranceManagementSystem.Controllers.CustomerPoliciesController",
     "Method": "DeleteAssignedPolicy",
     "RelativePath": "api/CustomerPolicies/{id}",
     "HttpMethod": "DELETE",
@@ -288,12 +299,38 @@
   },
   {
     "ContainingType": "InsuranceManagementSystem.Controllers.CustomerPoliciesController",
-    "Method": "AssignPolicy",
-    "RelativePath": "api/CustomerPolicies/assign",
-    "HttpMethod": "POST",
+    "Method": "GetPayabaleAmount",
+    "RelativePath": "api/CustomerPolicies/GetPayableAmount",
+    "HttpMethod": "GET",
     "IsController": true,
     "Order": 0,
     "Parameters": [
+      {
+        "Name": "policyId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "paymentFrequency",
+        "Type": "System.String",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "InsuranceManagementSystem.Controllers.CustomerPoliciesController",
+    "Method": "UpdateTheRenewDate",
+    "RelativePath": "api/CustomerPolicies/UpdateTheRenewDate",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "customerId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
       {
         "Name": "policyId",
         "Type": "System.Int32",
@@ -597,6 +634,16 @@
         "IsRequired": false
       }
     ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "InsuranceManagementSystem.Controllers.AgentsController",
+    "Method": "CheckingTheProfileCompletion",
+    "RelativePath": "IsAgentProfileComplete",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
     "ReturnTypes": []
   },
   {

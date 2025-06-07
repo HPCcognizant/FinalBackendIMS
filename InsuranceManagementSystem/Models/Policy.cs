@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Numerics;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal;
 
 namespace InsuranceManagementSystem.Models
@@ -8,9 +9,10 @@ namespace InsuranceManagementSystem.Models
         [Key]
         public int PolicyID { get; set; }
         public string? Policy_Name { get; set; }
+        public decimal? IssuredValue { get; set; }
         public decimal PremiumAmount { get; set; }
         public string? CoverageDetails { get; set; }
-        public DateOnly ValidityPeriod { get; set; }
+        public string? ValidityPeriod { get; set; }
         public Boolean IsActive { get; set; } = true;
 
         public int AgentID { get; set; }
