@@ -29,10 +29,19 @@ namespace InsuranceManagementSystem.Services
         public async Task<Agent> AddAgentAsync(AgentDTO agent, string userid)
         {
             int uid = Convert.ToInt32(userid);
-            var existing = await _context.Agents.FirstOrDefaultAsync(x => x.Agent_Name == agent.Agent_Name);
-            if (existing != null)
+
+            // Check for existing agent name
+            var existingName = await _context.Agents.FirstOrDefaultAsync(x => x.Agent_Name == agent.Agent_Name);
+            if (existingName != null)
             {
-                throw new Exception("Agent already exists");
+                throw new ArgumentException("Agent name already exists. Please choose a different name.");
+            }
+
+            // Check for existing contact info
+            var existingContact = await _context.Agents.FirstOrDefaultAsync(x => x.ContactInfo == agent.ContactInfo);
+            if (existingContact != null)
+            {
+                throw new ArgumentException("Contact info already exists. Please provide a different contact number.");
             }
 
             var agentInfo = new Agent
@@ -42,11 +51,23 @@ namespace InsuranceManagementSystem.Services
                 UserId = uid,
             };
 
-            _context.Agents.Add(agentInfo);
-            await _context.SaveChangesAsync();
-
-            return agentInfo;
+            try
+            {
+                _context.Agents.Add(agentInfo);
+                await _context.SaveChangesAsync();
+                return agentInfo;
+            }
+            catch (DbUpdateException ex)
+            {
+                // Fallback for any unique constraint violation at the database level
+                if (ex.InnerException != null && ex.InnerException.Message.Contains("UNIQUE"))
+                {
+                    throw new ArgumentException("contact info already exists.");
+                }
+                throw;
+            }
         }
+
 
         public async Task UpdateAgentAsync(int id, AgentDTO agent)
         {

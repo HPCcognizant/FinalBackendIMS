@@ -18,37 +18,10 @@ namespace InsuranceManagementSystem.Repository
             _tokenGenerate = tokenGenerate;
         }
 
-        //public async Task<string> LoginOfUser(string username, string password)
-        //{
-        //    if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password))
-        //    {
-        //        throw new ArgumentException("Please enter a valid Username and Password.");
-        //    }
-
-        //    var user = await _context.Users.SingleOrDefaultAsync(u => u.Username == username);
-
-        //    if (user == null)
-        //    {
-        //        throw new Exception("User Not Found.");
-        //    }
-
-        //    if (BCrypt.Net.BCrypt.Verify(password, user.Password))
-        //    {
-        //        return _tokenGenerate.GenerateToken(user);
-        //    }
-
-        //    throw new UnauthorizedAccessException("Invalid Credentials.");
-        //}
-
-
-
-
         public async Task<bool> RegisterOfUser(UserDTO user)
         {
             if (user == null)
-            {
                 throw new ArgumentException("Enter valid User Details.");
-            }
 
             string HashPassword = BCrypt.Net.BCrypt.HashPassword(user.Password);
 
@@ -59,18 +32,34 @@ namespace InsuranceManagementSystem.Repository
                 Email = user.Email
             };
 
-            await _context.Users.AddAsync(UserInfo);
-            await _context.SaveChangesAsync();
+            try
+            {
+                // Check for existing username
+                if (await _context.Users.AnyAsync(u => u.Username == user.Username))
+                    throw new ArgumentException("Username already exists.");
 
-            return true;
+                // Check for existing email
+                if (await _context.Users.AnyAsync(u => u.Email == user.Email))
+                    throw new ArgumentException("Email already exists.");
+
+                await _context.Users.AddAsync(UserInfo);
+                await _context.SaveChangesAsync();
+                return true;
+            }
+            catch (ArgumentException)
+            {
+                throw;
+            }
+            catch (DbUpdateException ex)
+            {
+                throw new ArgumentException("Registration failed due to a database error: " + ex.Message);
+            }
         }
 
         public async Task<bool> RegisterAgent(UserDTO user)
         {
             if (user == null)
-            {
                 throw new ArgumentException("Enter valid User Details.");
-            }
 
             string HashPassword = BCrypt.Net.BCrypt.HashPassword(user.Password);
 
@@ -82,11 +71,35 @@ namespace InsuranceManagementSystem.Repository
                 role = "Agent"
             };
 
-            await _context.Users.AddAsync(UserInfo);
-            await _context.SaveChangesAsync();
+            try
+            {
+                // Check for existing username
+                if (await _context.Users.AnyAsync(u => u.Username == user.Username))
+                    throw new ArgumentException("Username already exists.");
 
-            return true;
+                // Check for existing email
+                if (await _context.Users.AnyAsync(u => u.Email == user.Email))
+                    throw new ArgumentException("Email already exists.");
+
+                // Check for existing agent contact info
+                if (await _context.Agents.AnyAsync(a => a.ContactInfo == user.Email)) // Adjust this if ContactInfo is not Email
+                    throw new ArgumentException("Agent contact info already exists.");
+
+                await _context.Users.AddAsync(UserInfo);
+                await _context.SaveChangesAsync();
+                return true;
+            }
+            catch (ArgumentException)
+            {
+                throw;
+            }
+            catch (DbUpdateException ex)
+            {
+                throw new ArgumentException("Registration failed due to a database error: " + ex.Message);
+            }
         }
+
+
 
         public async Task<ICollection<User>> GetAllUser() 
         {

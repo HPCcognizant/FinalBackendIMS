@@ -20,7 +20,7 @@ namespace InsuranceManagementSystem.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-
+            //Primary Key
             modelBuilder.Entity<User>().HasKey(x => x.Id);
             modelBuilder.Entity<Customer>().HasKey(c => c.Customer_ID);
             modelBuilder.Entity<Agent>().HasKey(c => c.AgentID);
@@ -28,6 +28,12 @@ namespace InsuranceManagementSystem.Data
             modelBuilder.Entity<Claim>().HasKey(c => c.ClaimID);
             modelBuilder.Entity<Notification>().HasKey(c => c.NotificationID);
             modelBuilder.Entity<CustomerPolicy>().HasKey(c => c.CustomerPolicy_ID);
+
+            //Unique Key
+            modelBuilder.Entity<User>().HasIndex(u => u.Username).IsUnique();
+            modelBuilder.Entity<User>().HasIndex(u => u.Email).IsUnique();
+            modelBuilder.Entity<Customer>().HasIndex(c => c.Customer_Phone).IsUnique();
+            modelBuilder.Entity<Agent>().HasIndex(a => a.ContactInfo).IsUnique();
 
             // User Relationships
             modelBuilder.Entity<Customer>()

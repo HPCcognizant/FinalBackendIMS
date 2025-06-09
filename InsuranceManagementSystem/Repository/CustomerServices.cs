@@ -16,6 +16,9 @@ namespace InsuranceManagementSystem.Repository
 
         public async Task AddCustomer(CustomerDTO customer, string userid, string email)
         {
+            // Check for existing phone number
+            if (await _context.Customers.AnyAsync(c => c.Customer_Phone == customer.Customer_Phone))
+                throw new ArgumentException("Customer phone number already exists. Please use a different phone number.");
 
             var CustInfo = new Customer
             {
@@ -25,9 +28,23 @@ namespace InsuranceManagementSystem.Repository
                 Customer_Address = customer.Customer_Address,
                 UserId = Convert.ToInt32(userid),
             };
-            await _context.Customers.AddAsync(CustInfo);
-            await _context.SaveChangesAsync();
+
+            try
+            {
+                await _context.Customers.AddAsync(CustInfo);
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateException ex)
+            {
+                // Fallback in case of a race condition or other unique constraint violation
+                if (ex.InnerException != null && ex.InnerException.Message.Contains("UNIQUE"))
+                {
+                    throw new ArgumentException("Customer phone number already exists. Please use a different phone number.");
+                }
+                throw;
+            }
         }
+
 
         public async Task DeleteCustomer(int id)
         {

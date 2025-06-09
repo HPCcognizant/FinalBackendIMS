@@ -47,9 +47,23 @@ namespace InsuranceManagementSystem.Controllers
         {
             string? userid = User.Claims.FirstOrDefault(c => c.Type == "UserId")?.Value;
 
-            var createdAgent = await _agentService.AddAgentAsync(agent , userid);
-            return CreatedAtAction(nameof(GetAgent), new { id = createdAgent.AgentID }, createdAgent);
+            try
+            {
+                var createdAgent = await _agentService.AddAgentAsync(agent, userid);
+                return CreatedAtAction(nameof(GetAgent), new { id = createdAgent.AgentID }, createdAgent);
+            }
+            catch (ArgumentException ex)
+            {
+                // Handles duplicate agent name or contact info
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                // Handles unexpected errors
+                return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred: " + ex.Message);
+            }
         }
+
 
         // PUT: api/Agents/5
         [HttpPut("UpdateAgentProfile")]
@@ -116,7 +130,7 @@ namespace InsuranceManagementSystem.Controllers
 
         // GET: api/Agents/{agentId}/assignedPolicies
         [HttpGet("{agentId}/assignedPolicies")]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin, User, Agent")]
         public async Task<ActionResult<IEnumerable<Policy>>> GetAssignedPoliciesByAgentId(string name)
         {
             var policies = await _agentService.GetAssignedPoliciesByAgentIdAsync(name);

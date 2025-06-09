@@ -29,7 +29,7 @@ namespace InsuranceManagementSystem.Controllers
         }
 
         [HttpGet("/GetAllActivePolicies")]
-        //[Authorize(Roles = "Admin, User")] // Allow both Admin and User roles to access this endpoint
+        [Authorize(Roles = "Admin, User, Agent")] // Allow both Admin and User roles to access this endpoint
         public async Task<ActionResult<IEnumerable<Policy>>> GetActivePolicies()
         {
             var policies = await _policyService.GetAllActivePoliciesAsync();
@@ -38,7 +38,7 @@ namespace InsuranceManagementSystem.Controllers
 
         // GET: api/policy/{id}
         [HttpGet("{id}")]
-        //[Authorize(Roles = "Admin, User")]
+        [Authorize(Roles = "Admin, User, Agent")]
         public async Task<ActionResult<Policy>> GetPolicyById(int id)
         {
             var policy = await _policyService.GetByIdAsync(id);
@@ -74,6 +74,7 @@ namespace InsuranceManagementSystem.Controllers
 
         // DELETE: api/policy/{id}
         [HttpDelete("{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeletePolicy(int id)
         {
             var existingPolicy = await _policyService.GetByIdAsync(id);

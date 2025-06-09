@@ -1,6 +1,7 @@
 ﻿using InsuranceManagementSystem.DTOs;
 using InsuranceManagementSystem.Interface;
 using InsuranceManagementSystem.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -136,6 +137,7 @@ namespace InsuranceManagementSystem.Controllers
         }
 
         [HttpGet("/GetAllCustomersByPolicyId")]
+        [Authorize(Roles = "Admin, User, Agent")]
         public async Task<IActionResult> GetAllTheCustomersByPolicyID(int id)
         {
             var policy = await _customerPolicyService.GetAllCustomerByPolicyID(id);

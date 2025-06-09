@@ -27,6 +27,7 @@ namespace InsuranceManagementSystem.Controllers
 
 
         [HttpGet("GetCustomerById")]
+        [Authorize(Roles = "Admin, User, Agent")]
         public async Task<IActionResult> GetCustomerById()
         {
             string? userid = User.Claims.FirstOrDefault(c => c.Type == "UserId")?.Value;
@@ -42,28 +43,37 @@ namespace InsuranceManagementSystem.Controllers
         }
 
         [HttpPost]
-        [Authorize]
+        [Authorize(Roles = "User")]
         public async Task<IActionResult> AddCustomer(CustomerDTO customer)
         {
-           
             string? userid = User.Claims.FirstOrDefault(c => c.Type == "UserId")?.Value;
-            string ? email = User.Claims.FirstOrDefault(c => c.Type == "Email")?.Value;
-            
-            if (userid == null && email == null ) 
+            string? email = User.Claims.FirstOrDefault(c => c.Type == "Email")?.Value;
+
+            if (userid == null && email == null)
             {
-                return BadRequest("Unauthorize User");
+                return BadRequest("Unauthorized user.");
             }
 
             if (customer == null)
             {
-                return BadRequest("Customer cannot be null");
+                return BadRequest("Customer cannot be null.");
             }
 
-            await _services.AddCustomer(customer, userid, email);
-            return Ok(customer);
+            try
+            {
+                await _services.AddCustomer(customer, userid, email);
+                return Ok(customer);
+            }
+            catch (ArgumentException ex)
+            {
+                // Handles unique constraint or validation errors
+                return BadRequest(ex.Message);
+            }
         }
 
+
         [HttpPut("UpdateTheProfile")]
+        [Authorize(Roles = "User")]
         public async Task<IActionResult> UpdateCustomer(CustomerDTO customer)
         {
             string? userid = User.Claims.FirstOrDefault(c => c.Type == "UserId")?.Value;
@@ -85,6 +95,7 @@ namespace InsuranceManagementSystem.Controllers
 
 
         [HttpDelete("{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteCustomer(int id) 
         {
             await _services.DeleteCustomer(id);

@@ -40,21 +40,48 @@ namespace InsuranceManagementSystem.Controllers
             {
                 return BadRequest("Customer cannot be null");
             }
-            await _services.RegisterOfUser(user);
-            return Ok(user);
+            try
+            {
+                await _services.RegisterOfUser(user);
+                return Ok(user);
+            }
+            catch (ArgumentException ex)
+            {
+                // Return a 400 Bad Request with the specific error message
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                // Return a 500 Internal Server Error for unexpected issues
+                return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred: " + ex.Message);
+            }
         }
 
         [HttpPost("/registerAgent")]
-        [Authorize(Roles ="Admin")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> RegisterAgent(UserDTO user)
         {
             if (user == null)
             {
                 return BadRequest("Customer cannot be null");
             }
-            await _services.RegisterAgent(user);
-            return Ok(user);
+            try
+            {
+                await _services.RegisterAgent(user);
+                return Ok(user);
+            }
+            catch (ArgumentException ex)
+            {
+                // Return a 400 Bad Request with the specific error message
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                // Return a 500 Internal Server Error for unexpected issues
+                return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred: " + ex.Message);
+            }
         }
+
 
         [HttpPost("login")]
         public async Task<IActionResult> LoginOfUser([FromBody] LoginDTO login)
