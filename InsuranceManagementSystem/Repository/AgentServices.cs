@@ -127,9 +127,20 @@ namespace InsuranceManagementSystem.Services
             return id;
         }
 
+        public async Task<Agent> GetAgentById(int id)
+        {
+            var agent = await _context.Agents.FirstOrDefaultAsync(x => x.UserId == id);
+
+            if (agent == null)
+            {
+                throw new KeyNotFoundException($"Customer with ID {id} was not found.");
+            }
+            return agent;
+        }
+
         public async Task<bool> IsProfileCompleted(int id)
         {
-            var user = await _context.Customers.FirstOrDefaultAsync(c => c.UserId == id);
+            var user = await _context.Agents.FirstOrDefaultAsync(c => c.UserId == id);
 
             if (user == null)
             {

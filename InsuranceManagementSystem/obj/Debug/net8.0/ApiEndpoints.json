@@ -120,6 +120,16 @@
   },
   {
     "ContainingType": "InsuranceManagementSystem.Controllers.AgentsController",
+    "Method": "GetAgentById",
+    "RelativePath": "api/Agents/GetAgentById",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "InsuranceManagementSystem.Controllers.AgentsController",
     "Method": "PutAgent",
     "RelativePath": "api/Agents/UpdateAgentProfile",
     "HttpMethod": "PUT",

@@ -17,14 +17,15 @@ namespace InsuranceManagementSystem.Repository
         }
 
         // Assign a Policy to a Customer
+        // Assign a Policy to a Customer
         public async Task<CustomerPolicy> AssignPolicyToCustomerAsync(CustomerPoliciesDTO policiesDTO)
         {
             var today = DateOnly.FromDateTime(DateTime.Now);
 
             var customerExists = await _context.Customers.AnyAsync(c => c.Customer_ID == policiesDTO.Customer_ID);
-            var policyExists = await _context.Policies.AnyAsync(p => p.PolicyID == policiesDTO.PolicyID);
+            var policy = await _context.Policies.FirstOrDefaultAsync(p => p.PolicyID == policiesDTO.PolicyID);
 
-            if (!customerExists || !policyExists)
+            if (!customerExists || policy == null)
                 throw new ArgumentException("Invalid CustomerID or PolicyID");
 
             // Check for active policy
@@ -38,12 +39,45 @@ namespace InsuranceManagementSystem.Repository
             if (existingPolicy != null)
                 throw new ArgumentException("Customer already has an active policy of this type.");
 
+            // Calculate EndDate based on StartDate and Policy.ValidityPeriod
+            DateOnly endDate = policiesDTO.StartDate;
+            try
+            {
+                if (!string.IsNullOrEmpty(policy.ValidityPeriod))
+                {
+                    endDate = DateOnly.FromDateTime(
+                        GetNextRenewDate(policiesDTO.StartDate.ToDateTime(TimeOnly.MinValue), policy.ValidityPeriod)
+                    );
+                }
+            }
+            catch (ArgumentException)
+            {
+                throw new ArgumentException($"For validity period '{policy.ValidityPeriod}', the selected payment frequency is not applicable.");
+            }
+
+            // Calculate first RenewDate based on StartDate and PaymentFrequency
+            DateOnly renewDate = policiesDTO.StartDate;
+            try
+            {
+                if (!string.IsNullOrEmpty(policiesDTO.PaymentFrequency))
+                {
+                    renewDate = DateOnly.FromDateTime(
+                        GetNextRenewDate(policiesDTO.StartDate.ToDateTime(TimeOnly.MinValue), policiesDTO.PaymentFrequency)
+                    );
+                }
+            }
+            catch (ArgumentException)
+            {
+                throw new ArgumentException($"For validity period '{policy.ValidityPeriod}', the selected payment frequency '{policiesDTO.PaymentFrequency}' is not applicable.");
+            }
+
             var customerPolicy = new CustomerPolicy
             {
                 Customer_ID = policiesDTO.Customer_ID,
                 PolicyID = policiesDTO.PolicyID,
                 StartDate = policiesDTO.StartDate,
-                EndDate = policiesDTO.EndDate, // or calculate based on your logic
+                EndDate = endDate,
+                RenewDate = renewDate,
                 PayableAmount = policiesDTO.PayableAmount,
                 PaymentFrequency = policiesDTO.PaymentFrequency
             };
@@ -52,6 +86,10 @@ namespace InsuranceManagementSystem.Repository
             await _context.SaveChangesAsync();
             return customerPolicy;
         }
+
+
+
+
 
         // Delete an Assigned Policy
         public async Task DeleteAsync(int customerPolicyId)
@@ -88,7 +126,7 @@ namespace InsuranceManagementSystem.Repository
             {
                 "monthly" => fromDate.AddMonths(1),
                 "quarterly" => fromDate.AddMonths(3),
-                "halfyearly" => fromDate.AddMonths(6),
+                "half yearly" => fromDate.AddMonths(6),
                 "yearly" => fromDate.AddYears(1),
                 _ => throw new ArgumentException("Invalid payment frequency")
             };

@@ -19,6 +19,7 @@ namespace InsuranceManagementSystem.Repository
             var newPolicy = new Policy
             {
                 Policy_Name = policy.Policy_Name,
+                IssuredValue = policy.IssuredValue,
                 PremiumAmount = policy.PremiumAmount,
                 CoverageDetails = policy.CoverageDetails,
                 ValidityPeriod = policy.ValidityPeriod,

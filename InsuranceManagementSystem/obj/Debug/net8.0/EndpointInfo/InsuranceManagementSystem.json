@@ -191,6 +191,18 @@
         }
       }
     },
+    "/api/Agents/GetAgentById": {
+      "get": {
+        "tags": [
+          "Agents"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/api/Agents/{agentId}/assignedPolicies": {
       "get": {
         "tags": [
@@ -1421,14 +1433,6 @@
             "format": "int32"
           },
           "startDate": {
-            "type": "string",
-            "format": "date"
-          },
-          "endDate": {
-            "type": "string",
-            "format": "date"
-          },
-          "renewDate": {
             "type": "string",
             "format": "date"
           },

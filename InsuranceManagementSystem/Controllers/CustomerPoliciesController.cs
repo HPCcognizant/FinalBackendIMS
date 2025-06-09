@@ -25,29 +25,39 @@ namespace InsuranceManagementSystem.Controllers
         {
             string? email = User.Claims.FirstOrDefault(c => c.Type == "Email")?.Value;
 
-            if (email == null) 
+            if (email == null)
             {
                 return BadRequest("Unauthorized");
             }
 
-
-            int custID = await _customerServices.FIndCustomerIdByEmail(email);
-
-            var policiesDTO = new CustomerPoliciesDTO
+            try
             {
-                Customer_ID = custID,
-                PolicyID = customerPolicies.PolicyID,
-                StartDate = customerPolicies.StartDate,
-                EndDate = customerPolicies.EndDate,
-                RenewDate = customerPolicies.RenewDate,
-                PaymentFrequency = customerPolicies.PaymentFrequency,
-                PayableAmount = customerPolicies.PayableAmount,
+                int custID = await _customerServices.FIndCustomerIdByEmail(email);
 
-            };
+                var policiesDTO = new CustomerPoliciesDTO
+                {
+                    Customer_ID = custID,
+                    PolicyID = customerPolicies.PolicyID,
+                    StartDate = customerPolicies.StartDate,
+                    PaymentFrequency = customerPolicies.PaymentFrequency,
+                    PayableAmount = customerPolicies.PayableAmount,
+                };
 
-            var assignedPolicy = await _customerPolicyService.AssignPolicyToCustomerAsync(policiesDTO);
-            return Ok(assignedPolicy);
+                var assignedPolicy = await _customerPolicyService.AssignPolicyToCustomerAsync(policiesDTO);
+                return Ok(assignedPolicy);
+            }
+            catch (ArgumentException ex)
+            {
+                // Handles business logic errors, such as invalid frequency or already active policy
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                // Handles unexpected errors
+                return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred: " + ex.Message);
+            }
         }
+
 
         // Get All Assigned Policies
         [HttpGet]

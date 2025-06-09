@@ -76,7 +76,20 @@ namespace InsuranceManagementSystem.Controllers
         }
 
 
+        [HttpGet("GetAgentById")]
+        public async Task<IActionResult> GetAgentById()
+        {
+            string? userid = User.Claims.FirstOrDefault(c => c.Type == "UserId")?.Value;
 
+            if (userid == null)
+            {
+                return BadRequest("Please log in first");
+            }
+            int id = Convert.ToInt32(userid);
+
+            var agent = await _agentService.GetAgentById(id);
+            return Ok(agent);
+        }
 
 
         // DELETE: api/Agents/5
