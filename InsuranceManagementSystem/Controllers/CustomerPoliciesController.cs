@@ -22,6 +22,7 @@ namespace InsuranceManagementSystem.Controllers
 
         // Assign Policy to Customer
         [HttpPost]
+        [Authorize(Roles = "Admin, User")]
         public async Task<IActionResult> AssignPolicy(CustomerPoliciesDTO customerPolicies)
         {
             string? email = User.Claims.FirstOrDefault(c => c.Type == "Email")?.Value;
@@ -121,6 +122,7 @@ namespace InsuranceManagementSystem.Controllers
 
         // Delete Assigned Policy
         [HttpDelete("{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteAssignedPolicy(int id)
         {
             await _customerPolicyService.DeleteAsync(id);
@@ -128,6 +130,7 @@ namespace InsuranceManagementSystem.Controllers
         }
 
         [HttpGet("/GetAllPoliciesByCustomerId")]
+        [Authorize(Roles = "Admin, Agent, User")]
         public async Task<IActionResult> GetAllThePoliciesByCustomerID(int id)
         {
             var policy = await _customerPolicyService.GetAllPoliciesByCustomerID(id);
@@ -137,7 +140,7 @@ namespace InsuranceManagementSystem.Controllers
         }
 
         [HttpGet("/GetAllCustomersByPolicyId")]
-        [Authorize(Roles = "Admin, User, Agent")]
+        [Authorize(Roles = "Admin, Agent")]
         public async Task<IActionResult> GetAllTheCustomersByPolicyID(int id)
         {
             var policy = await _customerPolicyService.GetAllCustomerByPolicyID(id);

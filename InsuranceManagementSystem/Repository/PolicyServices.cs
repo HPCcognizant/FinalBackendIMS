@@ -43,7 +43,7 @@ namespace InsuranceManagementSystem.Repository
 
         public async Task<IEnumerable<Policy>> GetAllAsync()
         {
-            return await _context.Policies.ToListAsync() ?? throw new NotImplementedException();
+            return await _context.Policies.Include(a=>a.Agent).ToListAsync() ?? throw new NotImplementedException();
         }
 
         public async Task<List<Policy>> GetAllActivePoliciesAsync()

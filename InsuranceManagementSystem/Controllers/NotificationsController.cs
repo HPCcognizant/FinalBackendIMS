@@ -3,6 +3,7 @@ using System.Net.Mail;
 using InsuranceManagementSystem.DTOs;
 using InsuranceManagementSystem.Interface;
 using InsuranceManagementSystem.Repository;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -19,6 +20,7 @@ namespace InsuranceManagementSystem.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "Admin, Agent")]
         public async Task<IActionResult> NotifyCustomer(NotificationDTO notification) 
         {
             if (notification == null) 

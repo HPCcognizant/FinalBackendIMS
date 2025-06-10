@@ -42,7 +42,7 @@ namespace InsuranceManagementSystem.Controllers
 
         // POST: api/Agents
         [HttpPost]
-        [Authorize(Roles = "Admin, Agent")]
+        [Authorize(Roles = "Agent")]
         public async Task<ActionResult<Agent>> PostAgent(AgentDTO agent)
         {
             string? userid = User.Claims.FirstOrDefault(c => c.Type == "UserId")?.Value;
@@ -91,6 +91,7 @@ namespace InsuranceManagementSystem.Controllers
 
 
         [HttpGet("GetAgentById")]
+        [Authorize(Roles = "Agent, Admin")]
         public async Task<IActionResult> GetAgentById()
         {
             string? userid = User.Claims.FirstOrDefault(c => c.Type == "UserId")?.Value;
@@ -108,6 +109,7 @@ namespace InsuranceManagementSystem.Controllers
 
         // DELETE: api/Agents/5
         [HttpDelete("{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteAgent(int id)
         {
             try
