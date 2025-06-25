@@ -15,6 +15,7 @@ namespace InsuranceManagementSystem.Models
         public DateOnly RenewDate { get; set; }
         public string? PaymentFrequency { get; set; }   
         public decimal PayableAmount { get; set; }
+        public decimal PendingPAmount { get; set; } = 0;
 
     }
 }

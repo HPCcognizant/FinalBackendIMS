@@ -71,6 +71,8 @@ namespace InsuranceManagementSystem.Repository
                 throw new ArgumentException($"For validity period '{policy.ValidityPeriod}', the selected payment frequency '{policiesDTO.PaymentFrequency}' is not applicable.");
             }
 
+            decimal Pamount = (policy.PremiumAmount) - (policiesDTO.PayableAmount);
+
             var customerPolicy = new CustomerPolicy
             {
                 Customer_ID = policiesDTO.Customer_ID,
@@ -79,7 +81,8 @@ namespace InsuranceManagementSystem.Repository
                 EndDate = endDate,
                 RenewDate = renewDate,
                 PayableAmount = policiesDTO.PayableAmount,
-                PaymentFrequency = policiesDTO.PaymentFrequency
+                PaymentFrequency = policiesDTO.PaymentFrequency,
+                PendingPAmount = Pamount
             };
 
             _context.CustomerPolicies.Add(customerPolicy);
@@ -146,13 +149,11 @@ namespace InsuranceManagementSystem.Repository
 
             var today = DateOnly.FromDateTime(DateTime.Now);
 
-            // Define how many days before renew date renewal is allowed
-            int renewWindowDays = 7; // e.g., allow renewal only within 7 days before renew date
+            int renewWindowDays = 7;
 
             if (customerPolicy.RenewDate > today.AddDays(renewWindowDays))
                 throw new ArgumentException($"Policy is already renewed. Next renew date: {customerPolicy.RenewDate:yyyy-MM-dd}");
 
-            // If RenewDate is in the past or within the window, allow renewal
             var baseDate = customerPolicy.RenewDate > today
                 ? customerPolicy.RenewDate
                 : today;
@@ -161,16 +162,28 @@ namespace InsuranceManagementSystem.Repository
                 GetNextRenewDate(baseDate.ToDateTime(TimeOnly.MinValue), customerPolicy.PaymentFrequency)
             );
 
+            // Subtract the PayableAmount from PendingAmount
+            if (customerPolicy.PayableAmount > 0)
+            {
+                customerPolicy.PendingPAmount -= customerPolicy.PayableAmount;
+                if (customerPolicy.PendingPAmount < 0)
+                    customerPolicy.PendingPAmount = 0; // safeguard against negative values
+            }
+
             _context.CustomerPolicies.Update(customerPolicy);
             await _context.SaveChangesAsync();
             return customerPolicy.RenewDate;
         }
 
+
         public async Task<List<Policy>> GetAllPoliciesByCustomerID(int id) 
         {
-            var policyIds = await _context.CustomerPolicies.Where(c => c.Customer_ID == id).Select(cp => cp.PolicyID).ToListAsync();
+            var policies = await _context.Policies.Where(p => p.CustomerPolicies.Any(cp => cp.Customer_ID == id)).Include(p=>p.CustomerPolicies).ToListAsync();
 
-             List<Policy> policies = await _context.Policies.Where(p => policyIds.Contains(p.PolicyID)).ToListAsync();
+            foreach (var policy in policies) {
+                policy.CustomerPolicies = policy.CustomerPolicies.Where(cp => cp.Customer_ID == id).ToList();
+            }
+
 
             return policies;
         }

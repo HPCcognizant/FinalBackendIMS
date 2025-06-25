@@ -1303,6 +1303,10 @@
             "type": "string",
             "nullable": true
           },
+          "remainigCAmount": {
+            "type": "number",
+            "format": "double"
+          },
           "policy": {
             "$ref": "#/components/schemas/Policy"
           },
@@ -1485,6 +1489,10 @@
             "nullable": true
           },
           "payableAmount": {
+            "type": "number",
+            "format": "double"
+          },
+          "pendingPAmount": {
             "type": "number",
             "format": "double"
           }

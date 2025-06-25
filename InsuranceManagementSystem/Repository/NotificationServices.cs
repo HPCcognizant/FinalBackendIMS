@@ -52,5 +52,53 @@ namespace InsuranceManagementSystem.Repository
 
             return notification;
         }
+
+        public async Task<Notification> SentNotificationAfterApproval(int id, string reason)
+        {
+
+            var notification = new Notification
+            {
+                Customer_ID = id,
+                Message = reason,
+                Datasent = DateOnly.FromDateTime(DateTime.Now)
+            };
+
+            await _context.Notifications.AddAsync(notification);
+            await _context.SaveChangesAsync();
+
+            return notification;
+        }
+
+        public async Task<Notification> SentNotificationAfterRejected(int id, string reason)
+        {
+
+            var notification = new Notification
+            {
+                Customer_ID = id,
+                Message = reason,
+                Datasent = DateOnly.FromDateTime(DateTime.Now)
+            };
+
+            await _context.Notifications.AddAsync(notification);
+            await _context.SaveChangesAsync();
+
+            return notification;
+        }
+
+        public async Task<Notification> SentNotificationAfterUnderReview(int id)
+        {
+
+            var notification = new Notification
+            {
+                Customer_ID = id,
+                Message = "Your Claim is under Review.",
+                Datasent = DateOnly.FromDateTime(DateTime.Now)
+            };
+
+            await _context.Notifications.AddAsync(notification);
+            await _context.SaveChangesAsync();
+
+            return notification;
+        }
     }
 }

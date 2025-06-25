@@ -17,6 +17,7 @@ namespace InsuranceManagementSystem.Models
         public string? Status { get; set; } = "Filed";
         public string? ClaimReason { get; set; }
         public string? AdminReason { get; set; }
+        public decimal RemainigCAmount { get; set; } = 0;
 
         //Navigation Property
         public Policy? Policy { get; set; }

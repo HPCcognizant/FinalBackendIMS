@@ -32,7 +32,7 @@ namespace InsuranceManagementSystem.Repository
             var tokenDescription = new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity(claims),
-                Expires = DateTime.Now.AddMinutes(10),
+                Expires = DateTime.Now.AddMinutes(120),
                 SigningCredentials = cred
             };
 
